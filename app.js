@@ -1,70 +1,77 @@
 let userScore = 0;
 let compScore = 0;
 
-const choices = document.querySelectorAll(".choice");
-const msg = document.querySelector("#msg");
-const user = document.querySelector("#user-score");
-const comp = document.querySelector("#comp-score");
+const userScorePara = document.getElementById("user-score");
+const compScorePara = document.getElementById("comp-score");
+const msg = document.getElementById("msg");
 
-//Computer Choice
-const genCompChoice = () => {
-    const option = ["rock", "paper", "scissor"];
-    const randIdx = Math.floor(Math.random() * 3);
-    return option[randIdx];
-}
+const userPickedView = document.getElementById("user-picked");
+const compPickedView = document.getElementById("comp-picked");
 
-const drawGame = () => {
-    console.log("Game was draw.");
-    msg.innerText = "Game was draw. Play again! 🤝";
-    msg.style.backgroundColor = "#1f2937";
-    msg.style.boxShadow = "none";
+// Icon mapping to update battle area components dynamically
+const iconClasses = {
+    rock: "fa-solid fa-hand-fist",
+    paper: "fa-solid fa-hand",
+    scissors: "fa-solid fa-hand-scissors"
 };
 
-const showWiner = (userWin) => {
-    if(userWin == true){
+const genCompChoice = () => {
+    const options = ["rock", "paper", "scissors"];
+    const randIdx = Math.floor(Math.random() * 3);
+    return options[randIdx];
+};
+
+const drawGame = () => {
+    msg.innerText = "Game was Draw. Play again!";
+    msg.style.color = "#f1f5f9";
+};
+
+const showWinner = (userWin, userChoice, compChoice) => {
+    if (userWin) {
         userScore++;
-        user.innerText = userScore;
-        console.log("you win!");
-        msg.innerText = "You Win! 🎉";
-        msg.style.backgroundColor = "#10b981"; // Vibrant Green
-        msg.style.boxShadow = "0 0 20px rgba(16, 185, 129, 0.4)";
-    }
-    else{
+        userScorePara.innerText = userScore;
+        msg.innerText = `You win! Your ${userChoice} beats ${compChoice}`;
+        msg.style.color = "#4ade80"; // Premium Green
+    } else {
         compScore++;
-        comp.innerText = compScore;
-        console.log("you Lose!");
-        msg.innerText = "You Lose! 😢";
-        msg.style.backgroundColor = "#ef4444"; // Vibrant Red
-        msg.style.boxShadow = "0 0 20px rgba(239, 68, 68, 0.4)";
+        compScorePara.innerText = compScore;
+        msg.innerText = `You lose. ${compChoice} beats your ${userChoice}`;
+        msg.style.color = "#f87171"; // Premium Red
     }
-}
+};
+
+const updateBattleUI = (userChoice, compChoice) => {
+    // Injecting fontawesome elements to look exactly like user selection
+    userPickedView.innerHTML = `<i class="${iconClasses[userChoice]}"></i>`;
+    compPickedView.innerHTML = `<i class="${iconClasses[compChoice]}"></i>`;
+    
+    // Add brief animation highlight effect
+    userPickedView.style.color = "#38bdf8";
+    compPickedView.style.color = "#38bdf8";
+};
 
 const playGame = (userChoice) => {
-    console.log("user Choice", userChoice);
     const compChoice = genCompChoice();
-    console.log("comp Choice", compChoice);
-
-    let userWin = true;
     
-    if(userChoice === compChoice){
-        drawGame();
-    }
-    else{
-        if(userChoice === "rock" && compChoice === "paper"){
-            userWin = false;
-        }
-        else if(userChoice === "scissor" && compChoice === "rock"){
-            userWin = false;
-        }
-        else if(userChoice === "paper" && compChoice === "scissor"){
-            userWin = false;
-        }
-        showWiner(userWin);
-    }
-}
+    // Display choices instantly inside battle container
+    updateBattleUI(userChoice, compChoice);
 
-// User Choice
-choices.forEach((choice) => {
+    if (userChoice === compChoice) {
+        drawGame();
+    } else {
+        let userWin = true;
+        if (userChoice === "rock") {
+            userWin = compChoice === "paper" ? false : true;
+        } else if (userChoice === "paper") {
+            userWin = compChoice === "scissors" ? false : true;
+        } else {
+            userWin = compChoice === "rock" ? false : true;
+        }
+        showWinner(userWin, userChoice, compChoice);
+    }
+};
+
+document.querySelectorAll(".choice").forEach((choice) => {
     choice.addEventListener("click", () => {
         const userChoice = choice.getAttribute("id");
         playGame(userChoice);
